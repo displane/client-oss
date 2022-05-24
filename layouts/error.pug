@@ -1,0 +1,59 @@
+head
+    style.
+        @import url('https://fonts.googleapis.com/css?family=Lato|Roboto+Slab');
+
+        * {
+        position: relative;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Lato', sans-serif;
+        }
+
+        .centered {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center
+        }
+
+        h1 {
+        margin-bottom: 50px;
+        font-size: 10vw;
+        }
+
+        .message {
+        display: block;
+        line-height: 1.2;
+        overflow: hidden;
+        font-size: 3vw
+        }
+        .hidden {
+        color: #FFF;
+        }
+
+        .smallerror {
+            position: fixed;
+            bottom: 0;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .right {
+            right: 1vw;
+        }
+
+        .left {
+            left: 1vw;
+        }
+
+body
+    section.centered
+        h1 Error
+        .container
+            span.message= errorbody
+            .smallerror.right= err
+            .smallerror.left= ips

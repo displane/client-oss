@@ -1,0 +1,42 @@
+{
+  "name": "displane-player",
+  "version": "0.3.0",
+  "description": "",
+  "main": "app.js",
+  "repository": "https://github.com/megalan247/kpi-display-player",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron app.js --no-sandbox",
+    "pack": "electron-builder --dir",
+    "build-install-deps": "electron-builder install-app-deps",
+    "build": "electron-builder --win --linux --x64 --arm64"
+  },
+  "author": {
+    "name": "Displane Support",
+    "email": "support@displane.cloud"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.3",
+    "node-schedule": "^2.1.0",
+    "pug": "^3.0.2",
+    "request": "^2.88.2",
+    "systeminformation": "^5.11.14",
+    "tmp": "^0.2.1"
+  },
+  "build": {
+    "appId": "cloud.displane.app",
+    "productName": "Displane Player Application",
+    "extraFiles": [
+      "layouts"
+    ],
+    "linux": {
+      "target": [
+        "deb"
+      ]
+    }
+  },
+  "devDependencies": {
+    "electron": "^18.1.0"
+  }
+}

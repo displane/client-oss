@@ -1,0 +1,56 @@
+style.
+  html,body,webview {
+    margin: 0;
+    padding: 0;
+    width:100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+      display: flex;
+  }
+
+  .seven-hor {
+      height: 100vh;
+      width: 70vw;
+      display: inline-flex;
+      flex-direction: column;
+  }
+
+  .three-hor {
+      height: 100vh;
+      width: 30vw;
+      display: inline-flex;
+      flex-direction: column;
+  }
+
+  .half-vert {
+      height: 50vh;
+      width:100%;
+  }
+
+  .seven-vert {
+      height: 70vh;
+      width: 100%;
+  }
+
+  .three-vert {
+      height: 30vh;
+      width:100%;
+  }
+
+
+doctype
+html
+    body
+        .seven-hor
+            .seven-vert
+                webview#webview1(src=main[0].url, guestinstance="0")
+            .three-vert
+                webview#webview2(src=main[1].url, guestinstance="0")
+        .three-hor
+            .half-vert
+                webview#webview3(src=main[2].url, guestinstance="0")
+            .half-vert
+                webview#webview4(src=main[3].url, guestinstance="0")
