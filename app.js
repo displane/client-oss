@@ -8,7 +8,7 @@ const tmp = require('tmp');
 const os = require('os');
 var exec = require('child_process').exec;
 var schedule = require('node-schedule');
- 
+
 const express = require('express')
 const webApp = express()
 const port = 4568
@@ -62,7 +62,7 @@ function executeJavaScriptInBrowser(browser, site) {
 
     browser.webContents.executeJavaScript("document.getElementById('webview" + site.position + "').addEventListener('did-frame-navigate', () => {document.getElementById('webview" + site.position + "').executeJavaScript(atob('" + js.command + "'))});");
   }
-  if (process.env.DEBUG == "Y") {
+  if (process.env.DEBUG == "true") {
     browser.webContents.executeJavaScript("document.getElementById('webview" + site.position + "').openDevTools();")
   }
 }
@@ -199,7 +199,7 @@ function displayAdoptionScreen(playerConfig) {
       }
     });
     const tmpobj = tmp.fileSync({ postfix: '.html' });
-    var renderedHTML = pug.renderFile(layoutDirectory + 'new_adopt.pug', { screen: screen, player: playerConfig });
+    var renderedHTML = pug.renderFile(layoutDirectory + 'layout1.pug', { main: [{ url: `https://app.displane.cloud/.well-known/adopt?id=${playerConfig.adoptionId}` }] });
     fs.writeFileSync(tmpobj.name, renderedHTML)
     browser.loadURL('file://' + tmpobj.name);
   }
@@ -227,12 +227,12 @@ function processConfig(onlyCheckForNewConfig) {
       }
     } else {
       var parsedResponse
-      
+
       try {
         parsedResponse = JSON.parse(body)
-      } catch(e) {
+      } catch (e) {
         console.log("Unable to contact management server... Trying again here")
-        console.log(body)
+
         clearInterval(currentInterval)
         currentInterval = setInterval(getConfig, 10000);
         return;
@@ -270,7 +270,7 @@ function processConfig(onlyCheckForNewConfig) {
           configureCrons(parsedResponse.crons)
           initializeScreens(parsedResponse)
         }
-        if (process.env.DEBUG != "Y" || !activeConfigId) {
+        if (process.env.DEBUG != "true" || !activeConfigId) {
           activeConfigId = parsedResponse.latestConfig
           clearInterval(currentInterval)
           currentInterval = setInterval(function () { processConfig(true); }, 10000);
@@ -383,7 +383,7 @@ async function configureCrons(crons) {
       if (cron.schedule == "startup") {
         exec(cron.command)
       } else {
-        const job = schedule.scheduleJob(cron.schedule, function(){
+        const job = schedule.scheduleJob(cron.schedule, function () {
           exec(cron.command)
         });
         configuredCronJobs.push(job)
@@ -411,7 +411,7 @@ async function getSystemInfo() {
       if (int.ip4) {
         ips.push(int.ip4)
       }
-      
+
     }
     return {
       hostname: os.hostname(),
@@ -430,12 +430,12 @@ async function getSystemInfo() {
 async function updateRemoteSystemInformation(playerId) {
   var info = await getSystemInfo()
   try {
-    await request.post({ 
+    await request.post({
       url: baseURL + '/api/v1/player/config/' + playerId,
       headers: {
         'X-Displane-Shared-Secret': config.sharedSecret
       },
-      json: info 
+      json: info
     })
   } catch (error) {
     console.error("Error updating remote system information")
