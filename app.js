@@ -291,7 +291,7 @@ function processConfig(onlyCheckForNewConfig) {
       var currentBrowserWindows = BrowserWindow.getAllWindows()
 
       if (currentBrowserWindows.length > parsedResponse.screens.length) {
-        console.log("Closing all open browser windows due to currentBrowserWindows.length being larger than the stored screen length in Displane")
+        console.log(`Closing all open browser windows due to currentBrowserWindows.length (${currentBrowserWindows.length}) being larger than the stored screen length in Displane ${parsedResponse.screens.length}`)
         closeAllOpenBrowserWindows()
       }
 
