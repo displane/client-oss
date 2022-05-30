@@ -17,6 +17,8 @@ var is_error = false;
 
 var configuredCronJobs = []
 
+var siteChecks = {}
+
 var errorOccouredDuringStartup = false
 
 var currentInterval
@@ -67,7 +69,34 @@ function executeJavaScriptInBrowser(browser, site) {
   }
 }
 
-function assignSites(screen, electronScreen) {
+async function createCronsForSiteCheck(browser, site) {
+  schedule.scheduleJob('* * * * *', async function () {
+    try {
+      var result = await browser.webContents.executeJavaScript(`document.getElementById('webview${site.position}').executeJavaScript('document.body.textContent.includes("${site.checkString}")');`)
+      if (result == false) {
+        siteChecks[site.id].failures++
+        console.log("check " + site.id + " failures " + siteChecks[site.id].failures)
+        await browser.webContents.executeJavaScript(`document.getElementById('webview${site.position}').reloadIgnoringCache();`)
+      } else {
+        siteChecks[site.id].failures = 0
+      }
+      console.log("Check " + result)
+      
+    } catch (error) {
+      console.log(error)
+      siteChecks[site.id].failures++
+    }
+    if (siteChecks[site.id].failures == 10) {
+      closeAllOpenBrowserWindows()
+      siteChecks[site.id].failures = 0
+    }
+  });
+  siteChecks[site.id] = {
+    failures: 0
+  }
+}
+
+async function assignSites(screen, electronScreen) {
   console.log("Launching screen with screen %s", screen)
   var browser = new BrowserWindow({
     fullscreen: true,
@@ -78,7 +107,7 @@ function assignSites(screen, electronScreen) {
     webPreferences: {
       webviewTag: true,
       additionalArguments: [
-        "--remote-debugging-port=8315"
+        // "--remote-debugging-port=8315"
       ]
     }
   })
@@ -90,6 +119,10 @@ function assignSites(screen, electronScreen) {
     for (var site of screen.sites) {
       // setCookies(browser, parsedResponse[site]);
       executeJavaScriptInBrowser(browser, site);
+      if (site.checkString) {
+        createCronsForSiteCheck(browser, site)
+      }
+      
     }
   } catch (error) {
     displayErrorScreen("Unable to render HTML for page. Check you have enough sites added and refresh the config.", error, electronScreen)
@@ -252,8 +285,6 @@ function processConfig(onlyCheckForNewConfig) {
       if (errorOccouredDuringStartup) {
         errorOccouredDuringStartup = false
         is_error = false
-        closeAllOpenBrowserWindows()
-        return
       }
 
       if (onlyCheckForNewConfig) {
@@ -270,7 +301,7 @@ function processConfig(onlyCheckForNewConfig) {
           configureCrons(parsedResponse.crons)
           initializeScreens(parsedResponse)
         }
-        if (process.env.DEBUG != "true" || !activeConfigId) {
+        if (!activeConfigId) {
           activeConfigId = parsedResponse.latestConfig
           clearInterval(currentInterval)
           currentInterval = setInterval(function () { processConfig(true); }, 10000);
@@ -365,9 +396,9 @@ process.on('uncaughtException', function (err) {
 
 function closeAllOpenBrowserWindows(req, res) {
   console.log("Closing all open browser windows")
+  schedule.gracefulShutdown();
   var currentBrowserWindows = BrowserWindow.getAllWindows()
   for (window of currentBrowserWindows) {
-    console.log("Closing %s", window)
     window.destroy()
   }
 }
