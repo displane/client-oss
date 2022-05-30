@@ -97,7 +97,6 @@ async function createCronsForSiteCheck(browser, site) {
 }
 
 async function assignSites(screen, electronScreen) {
-  console.log("Launching screen with screen %s", screen)
   var browser = new BrowserWindow({
     fullscreen: true,
     frame: false,
@@ -274,6 +273,7 @@ function processConfig(onlyCheckForNewConfig) {
       var currentBrowserWindows = BrowserWindow.getAllWindows()
 
       if (currentBrowserWindows.length > parsedResponse.screens.length) {
+        console.log("Closing all open browser windows due to currentBrowserWindows.length being larger than the stored screen length in Displane")
         closeAllOpenBrowserWindows()
       }
 
