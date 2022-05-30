@@ -133,15 +133,33 @@ function initializeScreens(playerConfig) {
   screenArray = electron.screen.getAllDisplays();
 
   for (const electronScreen of screenArray) {
+    var screenAssigned = false
     try {
       for (const screen of playerConfig.screens) { // Otherwise just get and assign screens based on electronScreenId
         if (screen.electronScreenId == electronScreen.id) {
           assignSites(screen, electronScreen);
+          screenAssigned = true
         }
       }
     } catch (err) {
       console.log(err)
       displayErrorScreen("Error in initilizing screens, please check your screen config.", err);
+    }
+    if (!screenAssigned) {
+      var registerScreenData = {
+        id: electronScreen.id,
+        x: electronScreen.size.width,
+        y: electronScreen.size.height,
+        xpos: electronScreen.bounds.x,
+        ypos: electronScreen.bounds.y
+      }
+      request.post({ url: baseURL + '/api/v1/player/registerAdditionalScreenOnPlayer/' + playerConfig.id, json: registerScreenData }, function (err, httpResponse, body) {
+        if (err) {
+          console.log(err)
+          return
+        }
+        closeAllOpenBrowserWindows();
+      });
     }
   }
 }
