@@ -288,12 +288,12 @@ function processConfig(onlyCheckForNewConfig) {
         return;
       }
 
-      var currentBrowserWindows = BrowserWindow.getAllWindows()
+      // var currentBrowserWindows = BrowserWindow.getAllWindows()
 
-      if (currentBrowserWindows.length > parsedResponse.screens.length) {
-        console.log(`Closing all open browser windows due to currentBrowserWindows.length (${currentBrowserWindows.length}) being larger than the stored screen length in Displane ${parsedResponse.screens.length}`)
-        closeAllOpenBrowserWindows()
-      }
+      // if (currentBrowserWindows.length > parsedResponse.screens.length) {
+      //   console.log(`Closing all open browser windows due to currentBrowserWindows.length (${currentBrowserWindows.length}) being larger than the stored screen length in Displane ${parsedResponse.screens.length}`)
+      //   closeAllOpenBrowserWindows()
+      // }
 
       if (parsedResponse.exit == "true") {
         // If server tells the player to exit, do so
