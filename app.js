@@ -9,7 +9,8 @@ const os = require('os');
 var exec = require('child_process').exec;
 var schedule = require('node-schedule');
 
-const express = require('express')
+require( 'console-stamp' )( console );
+
 const webApp = express()
 const port = 4568
 
@@ -260,7 +261,7 @@ function processConfig(onlyCheckForNewConfig) {
   // This process checks that the device is ready to be used.
   // This also fires the "updateInventory" command and sets up 
   // the 8 minute timer for inventory updating.
-
+  console.log("Processing config with onlyCheckFornewConfig set to %s", onlyCheckForNewConfig)
   request({
     url: baseURL + '/api/v1/player/config/' + config.playerId,
     headers: {
@@ -277,9 +278,10 @@ function processConfig(onlyCheckForNewConfig) {
       }
     } else {
       var parsedResponse
-
+      console.log("Retrived response from server");
       try {
         parsedResponse = JSON.parse(body)
+        console.log("Parsed response from server");
       } catch (e) {
         console.log("Unable to contact management server... Trying again here")
 
@@ -297,29 +299,35 @@ function processConfig(onlyCheckForNewConfig) {
 
       if (parsedResponse.exit == "true") {
         // If server tells the player to exit, do so
+        console.log("Server asked to exit");
         process.exit(0)
       }
 
       if (errorOccouredDuringStartup) {
+        console.log("Setting errorOccouredDuringStartup to false and is_error to false");
         errorOccouredDuringStartup = false
         is_error = false
       }
 
       if (onlyCheckForNewConfig) {
         if (parsedResponse.latestConfig != activeConfigId) {
-          console.log("Detected config change")
+          console.log("Detected config change current config ID %s active config ID %s", parsedResponse.latestConfig, activeConfigId)
           is_error = false
           closeAllOpenBrowserWindows()
           activeConfigId = parsedResponse.latestConfig
         }
       } else {
         if (parsedResponse.isAdopted == 0) {
+          console.log("Not adopted, displaying adoption screen")
           displayAdoptionScreen(parsedResponse)
         } else {
+          console.log("configuring crons")
           configureCrons(parsedResponse.crons)
+          console.log("initilizing screens")
           initializeScreens(parsedResponse)
         }
         if (!activeConfigId) {
+          console.log("detected first start, setting activeConfigId and setting interval")
           activeConfigId = parsedResponse.latestConfig
           clearInterval(currentInterval)
           currentInterval = setInterval(function () { processConfig(true); }, 10000);
@@ -333,7 +341,7 @@ function processConfig(onlyCheckForNewConfig) {
 }
 
 async function getConfig() {
-
+  console.log("Getting config...")
   // Checks for player id in environment file. if no 
   //player id exisits it assumes the player has not registed
   // with the server before and automatically registers
@@ -358,6 +366,8 @@ async function getConfig() {
       })
     }
 
+    console.log(registerData)
+
     // POST Data to server to rgister player in database.
 
     request.post({ url: baseURL + '/api/v1/player/register', json: registerData }, function (err, httpResponse, body) {
@@ -381,6 +391,7 @@ async function getConfig() {
         sharedSecret: body.sharedSecret
       }
       fs.writeFileSync(configFileName, JSON.stringify(config));
+      console.log("Wrote config file vars")
       reloadConfig()
       processConfig()
 
@@ -388,6 +399,7 @@ async function getConfig() {
 
   } else {
     // If all required things are in the .env file it will use these to get and process the configuration from the server
+    console.log("Valid config found, processing config")
     processConfig();
   }
 
@@ -423,6 +435,7 @@ function closeAllOpenBrowserWindows(req, res) {
 
 async function configureCrons(crons) {
   for (cron of configuredCronJobs) {
+    console.log("Cancelling cron " + cron)
     cron.cancel()
   }
 
@@ -445,6 +458,7 @@ async function configureCrons(crons) {
 }
 
 async function getSystemInfo() {
+  console.log("Getting system information")
   try {
     var bootTime = Date.now() - (require('os').uptime() + "00")
     var systemInfo = await si.system()
@@ -477,6 +491,7 @@ async function getSystemInfo() {
 }
 
 async function updateRemoteSystemInformation(playerId) {
+  console.log("Updated remote system information")
   var info = await getSystemInfo()
   try {
     await request.post({
@@ -504,8 +519,10 @@ async function checkHealth(req, res) {
   }
 
   if (errorOccoured) {
+    console.log("supervisor healthcheck failed")
     res.sendStatus(500)
   } else {
+    console.log("supervisor healthcheck ok")
     res.sendStatus(200)
   }
 
