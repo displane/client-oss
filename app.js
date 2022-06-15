@@ -81,13 +81,13 @@ async function createCronsForSiteCheck(browser, site) {
       } else {
         siteChecks[site.id].failures = 0
       }
-      console.log("Check " + result)
       
     } catch (error) {
-      console.log(error)
+      console.error("Unable to run check function in webview JS. Has renderer crashed?")
+      console.error(error)
       siteChecks[site.id].failures++
     }
-    if (siteChecks[site.id].failures == 10) {
+    if (siteChecks[site.id].failures >= 10) {
       closeAllOpenBrowserWindows()
       siteChecks[site.id].failures = 0
     }
