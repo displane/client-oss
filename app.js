@@ -87,9 +87,11 @@ async function createCronsForSiteCheck(browser, site) {
       console.error(error)
       siteChecks[site.id].failures++
     }
-    if (siteChecks[site.id].failures >= 10) {
-      closeAllOpenBrowserWindows()
+    if (siteChecks[site.id].failures == 10) {
       siteChecks[site.id].failures = 0
+      console.log("Closing all open browser windows due to siteChecks failures being greater than or equal to 10")
+      closeAllOpenBrowserWindows()
+      
     }
   });
   siteChecks[site.id] = {
@@ -159,6 +161,7 @@ function initializeScreens(playerConfig) {
           console.log(err)
           return
         }
+        console.log("Closing all open windows due to registering additional screen on player")
         closeAllOpenBrowserWindows();
       });
     }
@@ -205,6 +208,7 @@ function displayErrorScreen(errorbody, err, electronScreen) {
       browser.loadURL('file://' + tmpobj.name);
     } else {
       is_error = true;
+      console.log("Clsoing all open browser windows due to displaying the error screens")
       closeAllOpenBrowserWindows()
       var currentScreens = electron.screen.getAllDisplays()
       for (screen of currentScreens) {
@@ -313,6 +317,7 @@ function processConfig(onlyCheckForNewConfig) {
         if (parsedResponse.latestConfig != activeConfigId) {
           console.log("Detected config change current config ID %s active config ID %s", parsedResponse.latestConfig, activeConfigId)
           is_error = false
+          console.log("Clsoing all open browser windows due to detected config change")
           closeAllOpenBrowserWindows()
           activeConfigId = parsedResponse.latestConfig
         }
