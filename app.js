@@ -266,7 +266,6 @@ function processConfig(onlyCheckForNewConfig) {
   // This also fires the "updateInventory" command and sets up 
   // the 8 minute timer for inventory updating.
   console.log("Processing config with onlyCheckFornewConfig set to %s", onlyCheckForNewConfig)
-  clearInterval(currentInterval)
   request({
     url: baseURL + '/api/v1/player/config/' + config.playerId,
     headers: {
