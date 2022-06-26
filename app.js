@@ -276,7 +276,7 @@ function processConfig(onlyCheckForNewConfig) {
     if (err) {
       console.log("Unable to contact management server... Trying again")
       clearInterval(currentInterval)
-      currentInterval = setInterval(getConfig, 10000);
+      currentInterval = setInterval(function () { processConfig(true); }, 10000);
       if (!activeConfigId) {
         displayErrorScreen("Error communicating with the management server - do you have an internet connection?", err);
         errorOccouredDuringStartup = true
@@ -291,7 +291,7 @@ function processConfig(onlyCheckForNewConfig) {
         console.log("Unable to contact management server... Trying again here")
 
         clearInterval(currentInterval)
-        currentInterval = setInterval(getConfig, 10000);
+        currentInterval = setInterval(function () { processConfig(true); }, 10000);
         return;
       }
 
